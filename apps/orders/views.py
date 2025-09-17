@@ -4,8 +4,12 @@ from .models import Order
 from .serializers import OrderSerializer, OrderListSerializer
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(user=user)
 
     def get_serializer_class(self):
         if self.action == 'list':
