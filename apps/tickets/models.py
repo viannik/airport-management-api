@@ -18,6 +18,10 @@ class Ticket(models.Model):
         related_name="tickets",
     )
 
+    @property
+    def place(self):
+        return f"{self.row}{self.seat}"
+
     class Meta:
         verbose_name = "Ticket"
         verbose_name_plural = "Tickets"
