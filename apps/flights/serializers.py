@@ -3,11 +3,12 @@ from rest_framework.relations import StringRelatedField
 
 from .models import Route, Flight
 from apps.airplanes.serializers import AirplaneSerializer
-from apps.crews.serializers import CrewSerializer
-from apps.tickets.serializers import TicketSeatsSerializer
 
 
 class RouteSerializer(serializers.ModelSerializer):
+    source = StringRelatedField(read_only=True)
+    destination = StringRelatedField(read_only=True)
+
     class Meta:
         model = Route
         fields = ("id", "source", "destination", "distance")
@@ -16,7 +17,7 @@ class RouteSerializer(serializers.ModelSerializer):
 class FlightSerializer(serializers.ModelSerializer):
     route = RouteSerializer(read_only=True)
     airplane = AirplaneSerializer(read_only=True)
-    crew = CrewSerializer(many=True, read_only=True)
+    crew = StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Flight
@@ -26,7 +27,6 @@ class FlightSerializer(serializers.ModelSerializer):
 class FlightListSerializer(FlightSerializer):
     route = StringRelatedField(read_only=True)
     airplane = StringRelatedField(read_only=True)
-    crew = StringRelatedField(many=True, read_only=True)
     seats_available = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -43,7 +43,9 @@ class FlightListSerializer(FlightSerializer):
 
 
 class FlightDetailSerializer(FlightSerializer):
-    taken_seats = TicketSeatsSerializer(many=True, read_only=True, source="tickets")
+    taken_seats = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="place", source="tickets",
+    )
 
     class Meta:
         model = Flight
@@ -56,3 +58,9 @@ class FlightDetailSerializer(FlightSerializer):
             "crew",
             "taken_seats",
         )
+
+
+class FlightCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flight
+        fields = ("route", "airplane", "departure_time", "arrival_time", "crew")
