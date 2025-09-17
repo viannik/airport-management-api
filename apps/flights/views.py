@@ -7,6 +7,7 @@ from .serializers import (
     FlightSerializer,
     FlightListSerializer,
     FlightDetailSerializer,
+    FlightCreateSerializer,
 )
 
 
@@ -38,5 +39,8 @@ class FlightViewSet(viewsets.ModelViewSet):
 
         if self.action == "retrieve":
             return FlightDetailSerializer
+
+        if self.action == "create":
+            return FlightCreateSerializer
 
         return FlightSerializer
