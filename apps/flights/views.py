@@ -1,6 +1,8 @@
 from django.db.models import F, Count
-from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
 
+from .filters import FlightFilter
 from .models import Flight, Route
 from .serializers import (
     RouteSerializer,
@@ -12,13 +14,22 @@ from .serializers import (
 
 
 class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.all()
+    queryset = Route.objects.select_related('source', 'destination').all()
     serializer_class = RouteSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['source__name', 'destination__name']
+    ordering_fields = ['source__name', 'destination__name', 'distance']
+    ordering = ['source__name', 'destination__name']
 
 
 class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.all()
     serializer_class = FlightSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = FlightFilter
+    search_fields = ['airplane__name', 'airplane__airplane_type__name', 'route__source__name', 'route__destination__name']
+    ordering_fields = ['departure_time', 'arrival_time']
+    ordering = ['departure_time']
 
     def get_queryset(self):
         queryset = self.queryset

@@ -13,7 +13,7 @@ A comprehensive Django REST API for managing airport operations, flights, bookin
 - **Crew Management** - Manage flight crew members and their assignments
 - **Booking System** - Handle customer orders and ticket reservations
 - **Seat Management** - Track seat availability and reservations
-- **Filtering & Search** (not realized) - Advanced filtering for flights and other resources
+- **Filtering & Search** - Advanced filtering and search capabilities across all resources
 - **PostgreSQL Database** - Robust database backend with Docker support
 - **Rate Limiting** - API throttling for security and performance
 
@@ -154,14 +154,17 @@ The API uses JWT (JSON Web Tokens) for authentication with the following configu
 
 ## API Features
 
-### Filtering & Search (not realized)
+### Filtering & Search
 
-The API supports advanced filtering on various endpoints:
+The API supports filtering and search across all endpoints:
 
-- **Flights**: Filter by route, departure time, airplane type, availability
-- **Orders**: Filter by user, date range, status
-- **Airports**: Search by name or city
-- **Crew**: Filter by availability and assignments
+- **Flights**: Search by airplane name/type, airports; filter by airplane type, available seats
+- **Airplanes**: Search by name, airplane type; filter by airplane type
+- **Airports**: Search by name, closest city
+- **Routes**: Search by source/destination airports
+- **Crew**: Search by first/last name
+- **Tickets**: Search by seat, airports
+- **Orders**: Order by creation date
 
 ### Data Validation
 
