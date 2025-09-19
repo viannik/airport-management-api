@@ -23,7 +23,13 @@ class RouteViewSet(viewsets.ModelViewSet):
 
 
 class FlightViewSet(viewsets.ModelViewSet):
-    queryset = Flight.objects.all()
+    queryset = Flight.objects.select_related(
+        "airplane", 
+        "airplane__airplane_type",
+        "route", 
+        "route__source", 
+        "route__destination"
+    ).prefetch_related("crew").all()
     serializer_class = FlightSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = FlightFilter
@@ -35,12 +41,14 @@ class FlightViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
 
         if self.action == "list":
-            queryset = queryset.select_related("airplane").annotate(
+            queryset = queryset.annotate(
                 seats_available=(
                     F("airplane__rows") * F("airplane__seats_in_row")
                     - Count("tickets")
                 )
             )
+        elif self.action == "retrieve":
+            queryset = queryset.prefetch_related("tickets")
 
         return queryset
 

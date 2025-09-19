@@ -6,7 +6,11 @@ from apps.permissions import IsAuthenticatedOrAdmin
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
-    queryset = Order.objects.select_related('user').all()
+    queryset = Order.objects.select_related('user').prefetch_related(
+        'tickets__flight__route__source', 
+        'tickets__flight__route__destination', 
+        'tickets__flight__airplane__airplane_type'
+    ).all()
     permission_classes = [IsAuthenticatedOrAdmin]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['created_at', 'user__username']
@@ -15,8 +19,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return Order.objects.all()
-        return Order.objects.filter(user=user)
+            return self.queryset
+        return self.queryset.filter(user=user)
 
     def get_serializer_class(self):
         if self.action == 'list':
