@@ -8,9 +8,3 @@ venv/
 **__pycache__/
 **db.sqlite3
 media
-/apps/tickets/migrations/
-/apps/orders/migrations/
-/apps/flights/migrations/
-/apps/crews/migrations/
-/apps/airports/migrations/
-/apps/airplanes/migrations/
