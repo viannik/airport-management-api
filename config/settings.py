@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "django_filters",
     "drf_spectacular",
     # local apps
+    "apps.users",
     "apps.airports",
     "apps.airplanes",
     "apps.crews",
@@ -149,6 +150,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Custom User Model
+AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
