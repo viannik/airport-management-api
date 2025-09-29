@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
-from django.contrib.auth.models import User
+from apps.users.models import User
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -61,7 +62,7 @@ class UnauthenticatedFlightApiTests(TestCase):
 class AuthenticatedFlightApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_user(email='testuser@test.com', password='testpass123')
         self.client.force_authenticate(self.user)
         setup_flight_data(self)
 
@@ -98,7 +99,7 @@ class AuthenticatedFlightApiTests(TestCase):
 class AdminFlightApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.admin_user = User.objects.create_user(username='admin', password='adminpass123', is_staff=True)
+        self.admin_user = User.objects.create_user(email='admin@test.com', password='adminpass123', is_staff=True)
         self.client.force_authenticate(self.admin_user)
         setup_flight_data(self)
 
@@ -117,3 +118,38 @@ class AdminFlightApiTests(TestCase):
         response = self.client.post(self.list_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Flight.objects.count(), 2)
+
+class FlightModelTests(TestCase):
+    def setUp(self):
+        self.airport1 = Airport.objects.create(name="Test Airport 1", closest_big_city="Test City 1")
+        self.airport2 = Airport.objects.create(name="Test Airport 2", closest_big_city="Test City 2")
+
+        self.airplane_type = AirplaneType.objects.create(name="Test Airplane Type")
+        self.airplane1 = Airplane.objects.create(
+            name="Test Airplane 1",
+            rows=30,
+            seats_in_row=6,
+            airplane_type=self.airplane_type
+        )
+
+        self.route1 = Route.objects.create(
+            source=self.airport1,
+            destination=self.airport2,
+            distance=1000
+        )
+
+    def test_route_source_destination_cannot_be_same(self):
+        with self.assertRaises(ValidationError):
+            route = Route(source=self.airport1, destination=self.airport1, distance=100)
+            route.clean()
+
+    def test_flight_arrival_must_be_after_departure(self):
+        now = datetime.now()
+        with self.assertRaises(ValidationError):
+            flight = Flight(
+                route=self.route1,
+                airplane=self.airplane1,
+                departure_time=now,
+                arrival_time=now - timedelta(hours=1)
+            )
+            flight.clean()

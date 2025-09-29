@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -8,12 +7,13 @@ from rest_framework.test import APIClient
 from apps.airports.models import Airport
 from apps.airplanes.models import Airplane, AirplaneType
 from apps.flights.models import Flight, Route
+from apps.users.models import User
 from .models import Order
 
 def setup_order_data(self):
-    self.user1 = User.objects.create_user(username='user1', password='testpass123',)
-    self.user2 = User.objects.create_user(username='user2', password='testpass123',)
-    self.admin_user = User.objects.create_user(username='admin', password='adminpass123', is_staff=True,)
+    self.user1 = User.objects.create_user(email='user1@test.com', password='testpass123',)
+    self.user2 = User.objects.create_user(email='user2@test.com', password='testpass123',)
+    self.admin_user = User.objects.create_user(email='admin@test.com', password='adminpass123', is_staff=True,)
 
     airport1 = Airport.objects.create(name="Kyiv Airport", closest_big_city="Kyiv",)
     airport2 = Airport.objects.create(name="Lviv Airport", closest_big_city="Lviv",)
